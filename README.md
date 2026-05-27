@@ -1,72 +1,57 @@
-# Production-Style AWS Infrastructure Automation Using Terraform
+# 🏗️ AWS Infrastructure Automation — Terraform
 
-## Project Overview
-
-This project provisions a production-style AWS cloud infrastructure using Terraform Infrastructure as Code (IaC).
-
-The infrastructure is designed to host containerized applications using Amazon ECS with an Application Load Balancer, Auto Scaling, private networking, and PostgreSQL RDS deployment.
-
-The project demonstrates real-world DevOps and cloud engineering concepts including:
-
-- Infrastructure as Code (Terraform)
-- AWS networking
-- ECS container orchestration
-- Application Load Balancer configuration
-- Auto Scaling
-- Security Groups
-- CloudWatch monitoring
-- Highly available architecture
-- Public and private subnet design
+> Production-style AWS cloud infrastructure provisioned entirely with Terraform IaC, designed to host containerized applications with high availability, private networking, and automated scaling.
 
 ---
 
-# Architecture
+## 📐 Architecture Overview
 
-## Infrastructure Components
-
-- VPC
-- Public Subnets
-- Private Subnets
-- Internet Gateway
-- NAT Gateway
-- Route Tables
-- Security Groups
-- ECS Cluster
-- ECS Task Definitions
-- ECS Services
-- Launch Templates
-- Auto Scaling Groups
-- Application Load Balancer
-- Target Groups
-- PostgreSQL RDS
-- CloudWatch Logs
+```
+                        ┌─────────────────────────────┐
+                        │          Internet            │
+                        └──────────────┬──────────────┘
+                                       ↓
+                        ┌─────────────────────────────┐
+                        │   Application Load Balancer  │
+                        │       (Public Subnets)       │
+                        └──────────────┬──────────────┘
+                                       ↓
+                        ┌─────────────────────────────┐
+                        │         Target Group         │
+                        └──────────────┬──────────────┘
+                                       ↓
+                        ┌─────────────────────────────┐
+                        │   ECS Services / ECS Tasks   │
+                        │       (Private Subnets)      │
+                        └──────────────┬──────────────┘
+                                       ↓
+                        ┌─────────────────────────────┐
+                        │      PostgreSQL RDS           │
+                        │       (Private Subnets)      │
+                        └─────────────────────────────┘
+```
 
 ---
 
-# Architecture Flow
+## ☁️ AWS Services Used
 
-```text
-Internet
-    ↓
-Application Load Balancer (Public Subnets)
-    ↓
-Target Group
-    ↓
-ECS Services / ECS Tasks (Private Subnets)
-    ↓
-PostgreSQL RDS (Private Subnets)
-AWS Services Used
-Service	Purpose
-VPC	Private cloud network
-ECS	Container orchestration
-EC2	ECS worker nodes
-ALB	Traffic distribution
-Auto Scaling Group	Automatic EC2 scaling
-RDS PostgreSQL	Managed relational database
-IAM	Access management
-CloudWatch	Logging and monitoring
-NAT Gateway	Internet access for private subnets
-Project Structure
+| Service | Purpose |
+|---|---|
+| **VPC** | Private cloud network |
+| **ECS** | Container orchestration |
+| **EC2** | ECS worker nodes |
+| **ALB** | Traffic distribution |
+| **Auto Scaling Group** | Automatic EC2 scaling |
+| **RDS PostgreSQL** | Managed relational database |
+| **IAM** | Access management |
+| **CloudWatch** | Logging and monitoring |
+| **NAT Gateway** | Internet access for private subnets |
+
+---
+
+## 📁 Project Structure
+
+```
 AWS-infrastructure-automation-terraform/
 │
 ├── provider.tf
@@ -98,109 +83,131 @@ AWS-infrastructure-automation-terraform/
 │
 ├── userdata.sh
 ├── .gitignore
-│
 └── README.md
-Features
-Networking
-Custom VPC using CIDR block 10.0.0.0/16
-Public and private subnet architecture
-Internet Gateway for public internet access
-NAT Gateway for secure outbound internet access from private subnets
-Security
-Security Groups implementing least privilege access
-ECS instances accessible only through ALB
-PostgreSQL accessible only from ECS containers
-Sensitive variables separated using Terraform variables
-ECS Infrastructure
-ECS Cluster using EC2 launch type
-ECS Task Definitions
-ECS Services
-Launch Templates
-Auto Scaling Groups
-Load Balancing
-Internet-facing Application Load Balancer
-Target Groups for ECS containers
-Listener rules for traffic forwarding
-Database
-PostgreSQL RDS instance deployed in private subnets
-Secure database access
-Isolated networking design
-Monitoring
-CloudWatch Log Groups
-Infrastructure logging support
-Prerequisites
+```
+
+---
+
+## ✨ Features
+
+### 🌐 Networking
+- Custom VPC with CIDR block `10.0.0.0/16`
+- Public and private subnet architecture across multiple AZs
+- Internet Gateway for public internet access
+- NAT Gateway for secure outbound internet from private subnets
+
+### 🔒 Security
+- Security Groups with least-privilege access
+- ECS instances accessible **only** through the ALB
+- PostgreSQL accessible **only** from ECS containers
+- Sensitive variables managed via Terraform variables
+
+### 🐳 ECS Infrastructure
+- ECS Cluster using EC2 launch type
+- Task Definitions, Services, and Launch Templates
+- Auto Scaling Groups for dynamic capacity management
+
+### ⚖️ Load Balancing
+- Internet-facing Application Load Balancer
+- Target Groups for ECS containers
+- Listener rules for traffic forwarding
+
+### 🗄️ Database
+- PostgreSQL RDS deployed in private subnets
+- Isolated networking — not publicly accessible
+
+### 📊 Monitoring
+- CloudWatch Log Groups for ECS containers
+- Infrastructure-level logging support
+
+---
+
+## ✅ Prerequisites
 
 Before running this project, ensure you have:
 
-AWS Account
-Terraform >= 1.5
-AWS CLI configured
-IAM permissions for AWS resource provisioning
-Git installed
-Configure AWS CLI
+- An **AWS Account**
+- **Terraform >= 1.5** installed
+- **AWS CLI** configured
+- Sufficient **IAM permissions** to provision AWS resources
+- **Git** installed
+
+### Configure AWS CLI
+
+```bash
 aws configure
+```
 
-Provide:
+Provide your:
+- AWS Access Key ID
+- AWS Secret Access Key
+- Default Region
+- Output Format
 
-AWS Access Key
-AWS Secret Key
-Default Region
-Output Format
-Terraform Workflow
-Initialize Terraform
+---
+
+## 🚀 Terraform Workflow
+
+```bash
+# 1. Initialize Terraform
 terraform init
-Validate Configuration
+
+# 2. Validate configuration
 terraform validate
-Preview Infrastructure Changes
+
+# 3. Preview infrastructure changes
 terraform plan
-Deploy Infrastructure
+
+# 4. Deploy infrastructure
 terraform apply
-Destroy Infrastructure
+
+# 5. Destroy infrastructure (when done)
 terraform destroy
-Security Best Practices
-Important
+```
 
-This project excludes sensitive files using .gitignore.
+---
 
-Ignored files include:
+## 🔐 Security Best Practices
 
+> ⚠️ **Important:** This project excludes sensitive files via `.gitignore`
+
+The following are **never committed** to version control:
+
+```
 *.tfvars
 *.tfstate
 *.tfstate.backup
 .terraform/
-Notes
-ECS instances run inside private subnets
-ALB runs inside public subnets
-NAT Gateway enables outbound internet access for ECS instances
-RDS is not publicly accessible
-Future Improvements
+```
 
-Potential production improvements:
+---
 
-HTTPS using ACM certificates
-Route53 DNS integration
-ECS Fargate migration
-Terraform modules
-Remote Terraform state backend (S3 + DynamoDB)
-CI/CD pipeline integration
-CloudWatch alarms
-Multi-AZ NAT Gateway deployment
-Secrets Manager integration
-Skills Demonstrated
-Terraform
-AWS VPC Networking
-ECS
-EC2
-Auto Scaling
-Application Load Balancer
-RDS PostgreSQL
-Infrastructure as Code
-Cloud Architecture
-DevOps Practices
-Author
+## 🔮 Future Improvements
 
-Yash Mayekar
+- [ ] HTTPS support using ACM certificates
+- [ ] Route53 DNS integration
+- [ ] Migrate to ECS Fargate
+- [ ] Refactor into reusable Terraform modules
+- [ ] Remote state backend (S3 + DynamoDB)
+- [ ] CI/CD pipeline integration
+- [ ] CloudWatch alarms and alerting
+- [ ] Multi-AZ NAT Gateway deployment
+- [ ] AWS Secrets Manager integration
 
-Disclaimer
+---
 
-This project is built for educational and portfolio purposes and demonstrates production-style AWS infrastructure architecture using Terraform.
+## 🛠️ Skills Demonstrated
+
+`Terraform` `AWS VPC Networking` `ECS` `EC2` `Auto Scaling` `Application Load Balancer` `RDS PostgreSQL` `Infrastructure as Code` `Cloud Architecture` `DevOps`
+
+---
+
+## 👤 Author
+
+**Yash Mayekar**
+
+---
+
+## ⚠️ Disclaimer
+
+> This project is built for **educational and portfolio purposes** and demonstrates production-style AWS infrastructure architecture using Terraform.
