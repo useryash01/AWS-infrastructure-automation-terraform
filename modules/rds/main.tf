@@ -3,15 +3,15 @@ resource "aws_db_subnet_group" "main" {
   name = "main-db-subnet-group"
 
   subnet_ids = [
-    aws_subnet.private_1.id,
-    aws_subnet.private_2.id
-  ]
+  var.private_subnet_1_id,
+  var.private_subnet_2_id
+ ]
 }
 
 resource "aws_security_group" "rds_sg" {
 
   name   = "rds-security-group"
-  vpc_id = aws_vpc.main.id
+  vpc_id = var.vpc_id
 
   ingress {
     from_port = 5432
@@ -19,8 +19,8 @@ resource "aws_security_group" "rds_sg" {
     protocol  = "tcp"
 
     security_groups = [
-      aws_security_group.ecs_sg.id
-    ]
+  var.ecs_sg_id
+   ]
   }
 }
 

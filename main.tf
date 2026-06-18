@@ -1,0 +1,59 @@
+module "networking" {
+
+  source = "./modules/networking"
+
+  vpc_cidr         = var.vpc_cidr
+  public_subnet_1  = var.public_subnet_1
+  public_subnet_2  = var.public_subnet_2
+  private_subnet_1 = var.private_subnet_1
+  private_subnet_2 = var.private_subnet_2
+}
+
+module "security" {
+
+  source = "./modules/security"
+
+  vpc_id = module.networking.vpc_id
+}
+
+module "alb" {
+
+  source = "./modules/alb"
+
+  vpc_id = module.networking.vpc_id
+
+  alb_sg_id = module.security.alb_sg_id
+
+  public_subnet_1_id = module.networking.public_subnet_1_id
+  public_subnet_2_id = module.networking.public_subnet_2_id
+}
+
+module "ecs" {
+
+  source = "./modules/ecs"
+
+  target_group_arn = module.alb.target_group_arn
+
+  instance_profile_name = module.security.instance_profile_name
+
+  ecs_sg_id = module.security.ecs_sg_id
+
+  private_subnet_1_id = module.networking.private_subnet_1_id
+
+  private_subnet_2_id = module.networking.private_subnet_2_id
+}
+
+module "rds" {
+
+  source = "./modules/rds"
+
+  vpc_id = module.networking.vpc_id
+
+  ecs_sg_id = module.security.ecs_sg_id
+
+  private_subnet_1_id = module.networking.private_subnet_1_id
+
+  private_subnet_2_id = module.networking.private_subnet_2_id
+
+  db_password = var.db_password
+}
