@@ -3,6 +3,7 @@
 *.tfstate
 *.tfstate.*
 .terraform.lock.hcl
+*.tfstate.backup
 
 # Backup files
 *.bak
