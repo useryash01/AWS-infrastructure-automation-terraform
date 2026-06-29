@@ -35,19 +35,26 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
 
-      # 4. Initialize Terraform with the remote backend
+      # 4. Recreate the terraform.tfvars file dynamically using an environment variable
+      - name: Create terraform.tfvars file
+        run: |
+          echo "$TFVARS_CONTENT" > terraform.tfvars
+        env:
+          TFVARS_CONTENT: ${{ secrets.TERRAFORM_TFVARS }}
+
+      # 5. Initialize Terraform with the remote backend
       - name: Terraform Init
         run: terraform init
 
-      # 5. Check if code formatting matches standards
+      # 6. Check if code formatting matches standards
       - name: Terraform Format Check
         run: terraform fmt -check
 
-      # 6. Generate deployment plan (Runs on both PRs and Pushes)
+      # 7. Generate deployment plan (Runs on both PRs and Pushes)
       - name: Terraform Plan
         run: terraform plan -var-file="terraform.tfvars"
 
-      # 7. Apply changes (ONLY runs when code is pushed/merged to master)
+      # 8. Apply changes (ONLY runs when code is pushed/merged to master)
       - name: Terraform Apply
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: terraform apply -auto-approve -var-file="terraform.tfvars"
