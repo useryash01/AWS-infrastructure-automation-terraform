@@ -1,0 +1,53 @@
+name: "Terraform AWS CI/CD"
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    name: "Terraform Automation"
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the repository code onto the runner
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Setup Terraform CLI on the runner
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.0
+
+      # 3. Authenticate with AWS using GitHub Secrets
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      # 4. Initialize Terraform with the remote backend
+      - name: Terraform Init
+        run: terraform init
+
+      # 5. Check if code formatting matches standards
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      # 6. Generate deployment plan (Runs on both PRs and Pushes)
+      - name: Terraform Plan
+        run: terraform plan -var-file="terraform.tfvars"
+
+      # 7. Apply changes (ONLY runs when code is pushed/merged to master)
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        run: terraform apply -auto-approve -var-file="terraform.tfvars"
